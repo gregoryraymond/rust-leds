@@ -1,0 +1,9 @@
+partition_table = "partitions.csv"
+
+[connection]
+
+[[usb_device]]
+vid = "03f0"
+pid = "098d"
+
+[flash]

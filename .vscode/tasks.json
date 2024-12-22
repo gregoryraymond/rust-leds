@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"args": [
+				"--target=xtensa-esp32-espidf"
+			],
+			"env": {
+				"ESP_IDF_PATH_ISSUES": "ignore"
+			},
+			"label": "rust: cargo build"
+		}
+	]
+}
