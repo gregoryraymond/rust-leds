@@ -3,7 +3,7 @@ mod motor;
 mod wifi;
 
 use chrono::{DateTime, Duration, Local, NaiveDateTime, NaiveTime, TimeZone};
-use esp_idf_sys::{esp_flash_init, esp_sleep_ext1_wakeup_mode_t, esp_timer_get_time, nvs_flash_erase, nvs_flash_init, ESP_ERR_NVS_NEW_VERSION_FOUND, ESP_ERR_NVS_NO_FREE_PAGES};
+use esp_idf_sys::{nvs_flash_erase, nvs_flash_init, ESP_ERR_NVS_NEW_VERSION_FOUND, ESP_ERR_NVS_NO_FREE_PAGES};
 use log::info;
 use motor::{down, up};
 use std::time::SystemTime;
@@ -12,7 +12,7 @@ use crate::wifi::CONFIG;
 use anyhow::{bail, Result};
 use serde_json::Value;
 
-use esp_idf_svc::{hal::{gpio::{PinDriver, Pull}, prelude::Peripherals}, sntp::{EspSntp, SyncStatus}, timer::EspTimer};
+use esp_idf_svc::sntp::{EspSntp, SyncStatus};
 
 fn main() -> anyhow::Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -65,12 +65,12 @@ fn ntp_time_sync() -> Result<()> {
     Ok(())
 }
 
-fn parse_json_to_sunset_time(json: &String) -> Result<String> {
+fn parse_json_to_sunset_time(json: &str) -> Result<String> {
     let value: Value = serde_json::from_str(json)?;
     Ok(value["results"]["sunset"].to_string())
 }
 
-fn parse_json_to_sunrise_time(json: &String) -> Result<String> {
+fn parse_json_to_sunrise_time(json: &str) -> Result<String> {
     let value: Value = serde_json::from_str(json)?;
     Ok(value["results"]["sunrise"].to_string())
 }
@@ -107,7 +107,7 @@ fn logic() -> Result<()> {
         up()?;
     } else {
         info!("Going into deep sleep for 2 hours.");
-        unsafe { esp_idf_sys::esp_deep_sleep((Duration::hours(2).num_microseconds().unwrap() as i64).try_into().unwrap()); }
+        unsafe { esp_idf_sys::esp_deep_sleep(Duration::hours(2).num_microseconds().unwrap().try_into().unwrap()); }
     }
 
     Ok(())

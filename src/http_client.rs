@@ -5,15 +5,14 @@ use std::sync::LazyLock;
 use esp_idf_svc::{
     http::client::{Method, Configuration as HttpConfiguration, EspHttpConnection},
     tls::X509,
-    io::{Read, Write},
-    wifi::{AuthMethod, ClientConfiguration, Configuration}
+    io::Read
 };
 use embedded_svc::http::client::Client;
 
 static CERTIFICATE: LazyLock<Vec<u8>> = std::sync::LazyLock::new(|| {
     let mut c = include_bytes!("cert.crt").to_vec();
     c.append(&mut vec![0_u8]);
-    return c;
+    c
 });
 
 pub fn load() -> Result<String> {
