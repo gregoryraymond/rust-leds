@@ -8,9 +8,10 @@ use log::info;
 
 #[toml_cfg::toml_config]
 pub struct Config {
-    #[default("")]
+    #[default("CantStopTheSignalMal_Guest")]
     wifi_ssid: &'static str,
-    #[default("")]
+    #[default("zqueeky-clawfoot-gadgets")]
+    #[toml_cfg::toml_config]
     wifi_psk: &'static str,
 }
 

@@ -1,17 +1,18 @@
-#![no_main]
-
 mod http_client;
-mod leds;
+mod motor;
 mod wifi;
 
 use chrono::{DateTime, Duration, Local, NaiveDateTime, NaiveTime, TimeZone};
+use esp_idf_sys::{esp_flash_init, esp_sleep_ext1_wakeup_mode_t, esp_timer_get_time, nvs_flash_erase, nvs_flash_init, ESP_ERR_NVS_NEW_VERSION_FOUND, ESP_ERR_NVS_NO_FREE_PAGES};
+use log::info;
+use motor::{down, up};
 use std::time::SystemTime;
 
 use crate::wifi::CONFIG;
 use anyhow::{bail, Result};
 use serde_json::Value;
 
-use esp_idf_svc::sntp::{EspSntp, SyncStatus};
+use esp_idf_svc::{hal::{gpio::{PinDriver, Pull}, prelude::Peripherals}, sntp::{EspSntp, SyncStatus}, timer::EspTimer};
 
 fn main() -> anyhow::Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -21,8 +22,18 @@ fn main() -> anyhow::Result<()> {
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
 
+    unsafe {
+        let err = nvs_flash_init();
+        if err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND {
+            nvs_flash_erase();
+            let lerr = nvs_flash_init();
+            info!("Reinit nvs_flash {}", lerr);
+        }
+    }
+
     if let Err(e) = logic() {
-        panic!("{}", e);
+        log::error!("{}", e);
+        return Err(e);
     }
     Ok(())
 }
@@ -30,13 +41,14 @@ fn main() -> anyhow::Result<()> {
 fn parse_sunset_time(sunset: String, dt_now: &DateTime<Local>) -> Result<DateTime<Local>> {
     // Example str: "sunset":"5:22:11 PM"
     let values: Vec<u32> = sunset
-        .split(&[':', ' '])
-        .flat_map(|x| x.parse::<u32>())
+        .split(&['"', ':', ' '][..])
+        .flat_map(|x| x.trim().parse::<u32>())
         .collect();
     let after_noon = match sunset.ends_with("PM") {
         true => 12,
         false => 0,
     };
+    info!("parse_sunset_time {}, {:?}", sunset, values);
     let naive_time = NaiveTime::from_hms_opt(values[0] + after_noon, values[1], values[2])
         .ok_or(anyhow::anyhow!("Could not parse sunset time"))?;
     let naive_sunset = NaiveDateTime::new(dt_now.date_naive(), naive_time);
@@ -53,13 +65,20 @@ fn ntp_time_sync() -> Result<()> {
     Ok(())
 }
 
-fn parse_json_to_sunset_time(json: String) -> Result<String> {
-    let value: Value = serde_json::from_str(&json)?;
+fn parse_json_to_sunset_time(json: &String) -> Result<String> {
+    let value: Value = serde_json::from_str(json)?;
     Ok(value["results"]["sunset"].to_string())
+}
+
+fn parse_json_to_sunrise_time(json: &String) -> Result<String> {
+    let value: Value = serde_json::from_str(json)?;
+    Ok(value["results"]["sunrise"].to_string())
 }
 
 fn logic() -> Result<()> {
     let app_config = CONFIG;
+
+
 
     let mut wifi = match wifi::connect(app_config) {
         Ok(x) => x,
@@ -79,15 +98,16 @@ fn logic() -> Result<()> {
     wifi.disconnect()?;
 
     let now: DateTime<Local> = SystemTime::now().into();
-    let sunset: DateTime<Local> = parse_sunset_time(parse_json_to_sunset_time(json)?, &now)?;
+    let sunset: DateTime<Local> = parse_sunset_time(parse_json_to_sunset_time(&json)?, &now)?;
+    let sunrise: DateTime<Local> = parse_sunset_time(parse_json_to_sunrise_time(&json)?, &now)?;
     let offet_mins = Duration::minutes(60);
     if now < (sunset - offet_mins) && now > (sunset + offet_mins) {
-        // Show LEDS
-        let _ = leds::on();
-    } else if now > (sunset + offet_mins) {
-        // Sleep for a long time
+        down()?;
+    } else if now < (sunrise - offet_mins) && now > (sunrise + offet_mins) {
+        up()?;
     } else {
-        // Sleep for a short time
+        info!("Going into deep sleep for 2 hours.");
+        unsafe { esp_idf_sys::esp_deep_sleep((Duration::hours(2).num_microseconds().unwrap() as i64).try_into().unwrap()); }
     }
 
     Ok(())

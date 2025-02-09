@@ -1,5 +1,7 @@
 use anyhow::{bail, Result};
+use log::info;
 use core::str;
+use std::sync::LazyLock;
 use esp_idf_svc::{
     http::client::{Method, Configuration as HttpConfiguration, EspHttpConnection},
     tls::X509,
@@ -8,7 +10,11 @@ use esp_idf_svc::{
 };
 use embedded_svc::http::client::Client;
 
-static CERTIFICATE: &str = include_str!("cert.crt");
+static CERTIFICATE: LazyLock<Vec<u8>> = std::sync::LazyLock::new(|| {
+    let mut c = include_bytes!("cert.crt").to_vec();
+    c.append(&mut vec![0_u8]);
+    return c;
+});
 
 pub fn load() -> Result<String> {
     get("https://api.sunrisesunset.io/json?lat=-35.2820012&lng=149.128998")
@@ -18,7 +24,7 @@ fn get(url: impl AsRef<str>) -> Result<String> {
     let connection = EspHttpConnection::new(&HttpConfiguration {
         use_global_ca_store: true,
         crt_bundle_attach: Some(esp_idf_svc::sys::esp_crt_bundle_attach),
-        client_certificate: Some(X509::pem_until_nul(CERTIFICATE.as_bytes())),
+        client_certificate: Some(X509::pem_until_nul(CERTIFICATE.as_slice())),
         ..Default::default()
     })?;
     // ANCHOR_END: connection
@@ -33,7 +39,7 @@ fn get(url: impl AsRef<str>) -> Result<String> {
     let response = request.submit()?;
     let status = response.status();
 
-    println!("Response code: {}\n", status);
+    info!("Response code: {}\n", status);
 
     match status {
         200..=299 => {

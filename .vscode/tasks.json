@@ -18,6 +18,25 @@
 				"ESP_IDF_PATH_ISSUES": "ignore"
 			},
 			"label": "rust: cargo build"
+		},
+		{
+			"type": "cargo",
+			"command": "run",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": {
+				"kind": "run",
+				"isDefault": true
+			},
+			"args": [
+				"--",
+				"--no-stub"
+			],
+			"env": {
+				"ESP_IDF_PATH_ISSUES": "ignore"
+			},
+			"label": "rust: cargo run"
 		}
 	]
 }
