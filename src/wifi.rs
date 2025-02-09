@@ -8,9 +8,10 @@ use log::info;
 
 #[toml_cfg::toml_config]
 pub struct Config {
-    #[default("")]
+    #[default("WIFI_SSID")]
     wifi_ssid: &'static str,
-    #[default("")]
+    #[default("pass")]
+    #[toml_cfg::toml_config]
     wifi_psk: &'static str,
 }
 

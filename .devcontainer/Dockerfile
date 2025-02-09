@@ -1,3 +1,5 @@
+# A dockerfile to document as code some of what you might need to deploy this to an esp32 device
+
 ARG VARIANT=bookworm-slim
 FROM debian:${VARIANT}
 ENV DEBIAN_FRONTEND=noninteractive

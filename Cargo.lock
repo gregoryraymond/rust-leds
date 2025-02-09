@@ -166,12 +166,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 
 [[package]]
-name = "bytemuck"
-version = "1.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b37c88a63ffd85d15b406896cc343916d7cf57838a847b3a6f2ca5d39a5695a"
-
-[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -565,7 +559,6 @@ dependencies = [
  "tempfile",
  "thiserror 1.0.69",
  "which",
- "xmas-elf",
 ]
 
 [[package]]
@@ -1386,20 +1379,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "rgb"
-version = "0.8.50"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57397d16646700483b67d2dd6511d79318f9d057fdbd21a4066aeac8b41d310a"
-dependencies = [
- "bytemuck",
-]
-
-[[package]]
-name = "rust-leds"
+name = "rust-example"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-io",
+ "cc",
  "chrono",
  "chrono-tz",
  "embedded-svc",
@@ -1411,7 +1396,6 @@ dependencies = [
  "postcard",
  "serde",
  "serde_json",
- "smart-leds",
  "toml-cfg",
 ]
 
@@ -1539,24 +1523,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f92a496fb766b417c996b9c5e57daf2f7ad3b0bebe1ccfca4856390e3d3bb67"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "smart-leds"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66df34e571fa9993fa6f99131a374d58ca3d694b75f9baac93458fe0d6057bf0"
-dependencies = [
- "smart-leds-trait",
-]
-
-[[package]]
-name = "smart-leds-trait"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bc64ee02bbbf469603016df746c0ed224f263280b6ebb49b7ebadbff375c572"
-dependencies = [
- "rgb",
 ]
 
 [[package]]
@@ -1974,18 +1940,3 @@ checksum = "36c1fec1a2bb5866f07c25f68c26e565c4c200aebb96d7e55710c19d3e8ac49b"
 dependencies = [
  "memchr",
 ]
-
-[[package]]
-name = "xmas-elf"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42c49817e78342f7f30a181573d82ff55b88a35f86ccaf07fc64b3008f56d1c6"
-dependencies = [
- "zero",
-]
-
-[[package]]
-name = "zero"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fe21bcc34ca7fe6dd56cc2cb1261ea59d6b93620215aefb5ea6032265527784"
