@@ -5,7 +5,7 @@ authors = ["Greg Raymond <graymond2007@gmail.com>"]
 edition = "2021"
 resolver = "2"
 build = "build.rs"
-rust-version = "1.82"
+rust-version = "1.90"
 
 [[bin]]
 name = "rust-example"
@@ -25,23 +25,22 @@ experimental = ["esp-idf-svc/experimental"]
 
 [dependencies]
 log = "0.4"
-esp-idf-svc = { version = "0.49" }
-embedded-svc = { version = "0.28", default-features = false }
+embedded-svc = { version = "*", default-features = false }
 anyhow = "1.0.86"
 toml-cfg = "0.2.0"
 serde_json = "1.0.121"
 chrono = "0.4.38"
 chrono-tz = "0.10.0"
-esp-idf-sys = "0.35.0"
+esp-idf-svc = "0.51"
+esp-idf-sys = "*"
 
 [build-dependencies]
-embuild = "0.32.0"
-cc = "=1.1.30" # Version "1.1.30" necessary until a new version of `esp-idf-sys` is released
-
+embuild = { version = "0.33", features=["espidf"]}
+cc = "1.2.51"
 
 [dev-dependencies]
 anyhow = "1"
-esp-idf-sys = { version = "0.35", features = ["binstart"] }
+esp-idf-sys = { version = "*", features = ["binstart"] }
 futures = "0.3"
 serde = { version = "1", default-features = false, features = ["derive"] }
 serde_json = { version = "1", default-features = false, features = ["alloc"] }

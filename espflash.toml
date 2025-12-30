@@ -1,9 +1,10 @@
+# You may need to use the v4.3.0 of espflash for idf_format_args to work
+[idf_format_args]
 partition_table = "partitions.csv"
 
 [connection]
 
 [[usb_device]]
-vid = "03f0"
-pid = "098d"
 
 [flash]
+
